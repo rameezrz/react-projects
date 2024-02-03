@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
+import PasswordInput from "./components/PasswordInput";
+import SettingsForm from "./components/SettingsForm";
 
 function App() {
   const [password, setPassword] = useState("");
@@ -33,6 +35,18 @@ function App() {
     }
   }, [passwordRef]);
 
+  const handleLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLength(Number(e.target.value));
+  };
+
+  const handleNumberToggle = () => {
+    setIsNumberAllowed((prev) => !prev);
+  };
+
+  const handleCharacterToggle = () => {
+    setIsCharacterAllowed((prev) => !prev);
+  };
+
   useEffect(() => {
     passwordGenerator();
   }, [length, isCharacterAllowed, isNumberAllowed, passwordGenerator]);
@@ -43,67 +57,22 @@ function App() {
         <h1 className="text-white text-center mb-8 text-3xl font-bold">
           Password Generator
         </h1>
-        <div className="w-[80%] flex justify-between mx-auto rounded-2xl overflow-hidden mb-7">
-          <input
-            className="outline-none py-3 px-5 text-xl w-full"
-            type="text"
-            value={password}
-            readOnly
-            ref={passwordRef}
-          />
-          <button
-            className="outline-none px-5 py-3 bg-blue-700 text-white font-bold text-xl"
-            onClick={copyToClipBoard}
-          >
-            {isCopied ? "Copied" : "Copy"}
-          </button>
-        </div>
-        <div className="flex gap-16 justify-center">
-          <div className="flex gap-4">
-            <input
-              type="range"
-              name="length"
-              id="length"
-              defaultValue={8}
-              min={1}
-              max={100}
-              onChange={(e) => setLength(Number(e.target.value))}
-            />
-            <label className="text-yellow-500 text-2xl" htmlFor="length">
-              Length ({length})
-            </label>
-          </div>
-          <div className="flex gap-4">
-            <input
-              type="checkbox"
-              name="isNumberAllowed"
-              id="isNumberAllowed"
-              defaultChecked={isNumberAllowed}
-              onClick={() => setIsNumberAllowed((prev) => !prev)}
-            />
-            <label
-              className="text-yellow-500 text-2xl"
-              htmlFor="isNumberAllowed"
-            >
-              Numbers
-            </label>
-          </div>
-          <div className="flex gap-4">
-            <input
-              type="checkbox"
-              name="isCharacterAllowed"
-              id="isCharacterAllowed"
-              defaultChecked={isCharacterAllowed}
-              onClick={() => setIsCharacterAllowed((prev) => !prev)}
-            />
-            <label
-              className="text-yellow-500 text-2xl"
-              htmlFor="isCharacterAllowed"
-            >
-              Characters
-            </label>
-          </div>
-        </div>
+
+        <PasswordInput
+          password={password}
+          passwordRef={passwordRef}
+          isCopied={isCopied}
+          onCopy={copyToClipBoard}
+        />
+
+        <SettingsForm
+          length={length}
+          isNumberAllowed={isNumberAllowed}
+          isCharacterAllowed={isCharacterAllowed}
+          onLengthChange={handleLengthChange}
+          onNumberToggle={handleNumberToggle}
+          onCharacterToggle={handleCharacterToggle}
+        />
       </div>
     </div>
   );
