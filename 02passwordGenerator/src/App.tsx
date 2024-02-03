@@ -2,12 +2,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import PasswordInput from "./components/PasswordInput";
 import SettingsForm from "./components/SettingsForm";
+import { PasswordSettings } from "./types";
 
 function App() {
-  const [password, setPassword] = useState("");
-  const [length, setLength] = useState(8);
-  const [isNumberAllowed, setIsNumberAllowed] = useState(false);
-  const [isCharacterAllowed, setIsCharacterAllowed] = useState(false);
+  const [password, setPassword] = useState("hello");
+  const [settings, setSettings] = useState<PasswordSettings>({
+    length: 8,
+    isNumberAllowed: false,
+    isCharacterAllowed: false,
+  });
+
   const [isCopied, setIsCopied] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -16,16 +20,16 @@ function App() {
     let pass = "";
     let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyx";
 
-    if (isNumberAllowed) str += "0123456789";
-    if (isCharacterAllowed) str += "!@#$%^&*()_+{}";
+    if (settings.isNumberAllowed) str += "0123456789";
+    if (settings.isCharacterAllowed) str += "!@#$%^&*()_+{}";
 
-    for (let i = 1; i <= length; i++) {
+    for (let i = 1; i <= settings.length; i++) {
       const char = Math.floor(Math.random() * str.length + 1);
       pass += str.charAt(char);
     }
 
     setPassword(pass);
-  }, [length, isCharacterAllowed, isNumberAllowed, setPassword]);
+  }, [settings, setPassword]);
 
   const copyToClipBoard = useCallback(() => {
     if (passwordRef && passwordRef.current !== null) {
@@ -36,20 +40,29 @@ function App() {
   }, [passwordRef]);
 
   const handleLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLength(Number(e.target.value));
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      length: Number(e.target.value),
+    }));
   };
 
   const handleNumberToggle = () => {
-    setIsNumberAllowed((prev) => !prev);
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      isNumberAllowed: !prevSettings.isNumberAllowed,
+    }));
   };
 
   const handleCharacterToggle = () => {
-    setIsCharacterAllowed((prev) => !prev);
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      isCharacterAllowed: !prevSettings.isCharacterAllowed,
+    }));
   };
 
   useEffect(() => {
     passwordGenerator();
-  }, [length, isCharacterAllowed, isNumberAllowed, passwordGenerator]);
+  }, [settings, passwordGenerator]);
 
   return (
     <div className="w-full h-screen bg-black flex justify-center">
@@ -66,9 +79,9 @@ function App() {
         />
 
         <SettingsForm
-          length={length}
-          isNumberAllowed={isNumberAllowed}
-          isCharacterAllowed={isCharacterAllowed}
+          length={settings.length}
+          isNumberAllowed={settings.isNumberAllowed}
+          isCharacterAllowed={settings.isCharacterAllowed}
           onLengthChange={handleLengthChange}
           onNumberToggle={handleNumberToggle}
           onCharacterToggle={handleCharacterToggle}
